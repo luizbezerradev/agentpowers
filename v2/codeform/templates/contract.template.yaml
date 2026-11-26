@@ -1,0 +1,60 @@
+# Contract — single definition of the FIELDS. The rules (one per behavior, generated from the issue, never edited by
+# hand, a named test on every api/regras/tela line) are in methodology §2.2; the parallel split in §6.1.
+# - It lives in the sub-issue body, under "### Contract", inside a ```yaml block.
+# - Keys and fixed values stay exactly as written here; the text values are pt-BR.
+# - Nothing to write in a field: `[]` or `nenhum`, never a placeholder. Remove these comments in the generated contract.
+
+issue: {{parent issue number}}
+sub_issue: {{sub-issue number}}
+objetivo: "{{one sentence: the behavior this sub-issue delivers}}"
+fora_do_escopo:
+  - "{{what this sub-issue does NOT do (and which sub-issue does it, if any)}}"
+depends_on: []         # sub-issues this one consumes something from (#NNN — what it consumes); [] = can run in a
+                       # parallel lane. Rules: methodology §6.1
+
+impacto:
+  unidades: ["{{service/package/app touched — scope of lint, typecheck and scoped tests}}"]
+  arquivos:            # every path this sub-issue touches, relative to the project root; input of the
+                       # parallelization plan (methodology §6.1)
+    - "{{path}} [create | modify | remove]"
+  modulos: ["{{other modules/services that use what changes — path:line}}"]
+  telas: ["{{screens that show or call what changes}}"]
+  contratos: ["{{endpoints, events, DTOs, public interfaces affected}}"]
+  dados: ["{{tables/collections, fields, existing production data — and its migration}}"]
+  legado_na_area:      # legacy code nearby that must NOT be copied as a model
+    - "{{path:line}} — {{why it is legacy or a workaround}}"
+
+risco:
+  flags: ["{{critical business logic | security surface (external input, auth, persistence, sensitive data, LLM) | public API or contract | production data migration | new frontend | none (scaffolding)}}"]
+  tier: "{{light | standard | heavy | critical}}"   # methodology §6.2
+
+api:
+  - rota: "{{METHOD /path}}"
+    entrada_obrigatoria:
+      - "{{field}}: {{type and validation}}"
+    respostas:
+      - status: {{exact code, e.g. 201}}
+        corpo: "{{exact body or shape}}"
+        teste: "{{exact test name}}"
+      - status: {{e.g. 422}}
+        corpo: "{{exact body}}"
+        teste: "{{exact test name}}"
+# Security: if responses that reveal whether an account exists are kept (e.g. account_locked vs
+# invalid_credentials), record it in `decisoes` as a security decision, with its source.
+
+regras:                # every number explicit: limit, period, duration, what resets the count
+  - regra: "{{e.g. 5 failed attempts in 15 minutes lock the account for 30 minutes; a successful login resets the count}}"
+    limite: {{number}}
+    periodo: "{{e.g. 15 minutes}}"
+    duracao: "{{e.g. 30 minutes}}"
+    zera_contagem: "{{what resets the count}}"
+    teste: "{{exact test name}}"
+
+tela:                  # one line per interaction: when the user does X, Y appears (wireframe region/state)
+  - quando: "{{the user does X}}"
+    aparece: "{{Y appears — region/state of the wireframe}}"
+    teste: "{{exact test name}}"
+
+decisoes:              # decisions taken while planning; implementation decisions go to sub-issue comments (§0.11)
+  - decisao: "{{what was decided}}"
+    fonte: "{{issue #n (comment) | CLAUDE.md/AGENTS.md rule | path:line | user}}"
